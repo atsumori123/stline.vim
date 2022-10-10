@@ -5,16 +5,13 @@ let s:modes = {
   \  'v':      [' VISUAL '  , '%#STLinevisual#' , '%#STLineVisualRev#'],
   \  'V':      [' V-LINE '  , '%#STLinevisual#' , '%#STLineVisualRev#'],
   \  "\<C-v>": [' V-BLOCK ' , '%#STLinevisual#' , '%#STLineVisualRev#'],
-  \  'c':      [' COMMAND ' , '%#STLineCommand#', '%#STLineCommandRev#'],
+  \  'c':      [' COMMAND ' , '%#STLineNormal#' , '%#STLineNormalRev#'],
   \  's':      [' SELECT '  , '%#STLinevisual#' , '%#STLineVisualRev#'],
   \  'S':      [' S-LINE '  , '%#STLinevisual#' , '%#STLineVisualRev#'],
   \  "\<C-s>": [' S-BLOCK ' , '%#STLinevisual#' , '%#STLineVisualRev#'],
   \  't':      [' TERMINAL ', '%#STLineNormal#' , '%#STLineNormalRev#'],
   \}
 
-"===========================================================
-" Utilities
-"===========================================================
 "---------------------------------------------------------------
 " get_highlight_from_mode
 "---------------------------------------------------------------
@@ -28,31 +25,6 @@ endfunction
 function! s:get_git_branch() abort
 	let git_branch_name = s:GitBranchName()
 	return len(git_branch_name) ? '  '.git_branch_name : ''
-endfunction
-
-"---------------------------------------------------------------
-" stline#plugins_status
-"---------------------------------------------------------------
-function! stline#plugins_status() abort
-    let l:status = ''
-    let l:errors = 0
-    let l:warnings = 0
-
-    " Display errors and warnings from any of the previous diagnostic or linting
-    " systems.
-    if l:errors > 0 && l:warnings > 0
-        let l:status .= ' %#MistflyDiagnosticError#' . g:stlineErrorSymbol
-        let l:status .= ' ' . l:errors . '%* %#MistflyDiagnosticWarning#'
-        let l:status .= g:stlineWarningSymbol. ' ' . l:warnings . '%* '
-    elseif l:errors > 0
-        let l:status .= ' %#MistflyDiagnosticError#' . g:stlineErrorSymbol
-        let l:status .= ' ' . l:errors . '%* '
-    elseif l:warnings > 0
-        let l:status .= ' %#MistflyDiagnosticWarning#' . g:stlineWarningSymbol
-        let l:status .= ' ' . l:warnings . '%* '
-    endif
-
-    return l:status
 endfunction
 
 "---------------------------------------------------------------
@@ -87,14 +59,12 @@ function! stline#active_statusline() abort
 		" line. column
 		let statusline .= s:get_highlight_from_mode(mode, 0)
 		let statusline .= ' %p%%  %l/%L :%c %*'
-      
-		" warnning
-		let lnum = search('[\t| ]$', 'nw')
-		if lnum
-			let statusline .= s:get_highlight_from_mode(mode, 1)
-			let statusline .= ' ('.lnum.') %*'
-		endif
 
+		" warnning
+		if has_key(b:, 'tail_space') && b:tail_space
+			let statusline .= '%#STLineWarn#'
+			let statusline .= ' ('.b:tail_space.') %*'
+		endif
 	else
 		" NORMAL/INSERT/VISUAL ...
 		let statusline = s:get_highlight_from_mode(mode, 0)
@@ -107,7 +77,6 @@ function! stline#active_statusline() abort
 		let statusline .= expand('%:t')
 		let statusline .= '%=%*'
 	endif
-
     return statusline
 endfunction
 
@@ -118,15 +87,7 @@ function! stline#inactive_statusline() abort
 	let statusline = ' %*%<%F %m'
 	let statusline .= "%{&readonly?'[RO]' : ''}"
 	let statusline .= ' %p%%  %l/%L :%c '
-
     return statusline
-endfunction
-
-"---------------------------------------------------------------
-" stline#no_file_statusline
-"---------------------------------------------------------------
-function! stline#no_file_statusline() abort
-    return pathshorten(fnamemodify(getcwd(), ':~:.'))
 endfunction
 
 "---------------------------------------------------------------
@@ -134,19 +95,14 @@ endfunction
 "---------------------------------------------------------------
 function! stline#statusline(active) abort
     if &buftype ==# 'nofile' || &filetype ==# 'netrw'
-        " Likely a file explorer or some other special type of buffer. Set a
-        " blank statusline for these types of buffers.
-        setlocal statusline=%!stline#NoFileStatusLine()
-        if g:stlineWinBar && exists('&winbar')
-            setlocal winbar=
-        endif
+        return
 
     elseif &buftype ==# 'nowrite'
         " Don't set a custom status line for certain special windows.
         return
 
     elseif a:active == v:true
-		echo localtime()
+		call stline#update_statusline()
         setlocal statusline=%!stline#active_statusline()
 
     elseif a:active == v:false
@@ -154,22 +110,29 @@ function! stline#statusline(active) abort
     endif
 endfunction
 
+"---------------------------------------------------------------
+" stline#update_statusline
+"---------------------------------------------------------------
+function! stline#update_statusline() abort
+	let b:tail_space = search('[\t| ]$', 'nw')
+endfunction
+
 "===========================================================
 " stline#generate_highlight_groups
 "===========================================================
 function! stline#generate_highlight_groups() abort
-    exec 'highlight STLineNormal  ctermbg=17   ctermfg=white'
-    exec 'highlight STLineInsert  ctermbg=28   ctermfg=white'
-    exec 'highlight STLineVisual  ctermbg=128  ctermfg=white'
-    exec 'highlight STLineCommand ctermbg=17   ctermfg=white'
-    exec 'highlight STLineReplace ctermbg=202  ctermfg=white'
-    exec 'highlight STLineInfo    ctermbg=239  ctermfg=252'
+    exec 'highlight STLineNormal     ctermbg=17  ctermfg=white cterm=bold guibg=midnightblue     guifg=lightskyblue gui=bold'
+    exec 'highlight STLineInsert     ctermbg=28  ctermfg=white cterm=bold guibg=darkgreen        guifg=palegreen gui=bold'
+    exec 'highlight STLineVisual     ctermbg=128 ctermfg=white cterm=bold guibg=mediumvioletred  guifg=white gui=bold'
+    exec 'highlight STLineReplace    ctermbg=202 ctermfg=white cterm=bold guibg=tomato           guifg=white gui=bold'
 
-    exec 'highlight STLineNormalRev  ctermbg=237 ctermfg=33'
-    exec 'highlight STLineInsertRev  ctermbg=237 ctermfg=41'
-    exec 'highlight STLineVisualRev  ctermbg=237 ctermfg=171'
-    exec 'highlight STLineCommandRev ctermbg=237 ctermfg=33'
-    exec 'highlight STLineReplaceRev ctermbg=237 ctermfg=172'
+    exec 'highlight STLineWarn       ctermbg=17  ctermfg=white            guibg=khaki            guifg=black'
+    exec 'highlight STLineInfo       ctermbg=239 ctermfg=252              guibg=#505050          guifg=white'
+
+    exec 'highlight STLineNormalRev  ctermbg=237 ctermfg=33               guibg=#303030          guifg=royalblue'
+    exec 'highlight STLineInsertRev  ctermbg=237 ctermfg=41               guibg=#303030          guifg=mediumseagreen'
+    exec 'highlight STLineVisualRev  ctermbg=237 ctermfg=171              guibg=#303030          guifg=hotpink'
+    exec 'highlight STLineReplaceRev ctermbg=237 ctermfg=172              guibg=#303030          guifg=coral'
 endfunction
 
 "===========================================================
