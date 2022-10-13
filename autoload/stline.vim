@@ -71,7 +71,7 @@ function! stline#active_statusline() abort
 		let statusline .= ' %<%F %m'."%{&readonly ? '[RO]' : ''}"
 
 		" filetype
-		let statusline .= '%=%y %*'
+		let statusline .= '%=%*'
 
 		" fileencoding, fileformat
 		let statusline .= '%#STLineINF#'
@@ -106,9 +106,9 @@ endfunction
 " stline#inactive_statusline
 "---------------------------------------------------------------
 function! stline#inactive_statusline() abort
-	let statusline = ' %*%<%F %m'
+	let statusline  = ' %*%<%F %m'
 	let statusline .= "%{&readonly?'[RO]' : ''}"
-	let statusline .= ' %p%%  %l/%L :%c '
+	let statusline .= ' %=%p%% %l/%L :%c '
     return statusline
 endfunction
 
@@ -116,13 +116,9 @@ endfunction
 " stline#statusline
 "---------------------------------------------------------------
 function! stline#statusline(active) abort
-	if &buftype ==# 'nofile' || &buftype ==# 'nowrite' || &filetype ==# 'netrw'
-		return
-
-	elseif a:active == v:true
+	if a:active == v:true
 		setlocal statusline=%!stline#active_statusline()
-
-	elseif a:active == v:false
+	else
 		setlocal statusline=%!stline#inactive_statusline()
 	endif
 endfunction
@@ -141,7 +137,10 @@ let s:centerbuf = winbufnr(0)
 function! stline#tabline() abort
 	let lpad    = ' '
 	let bufnums = stline#get_user_buffers()
-	let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
+"	let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
+	let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': &columns / 2 }
+	let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
+	let currentside = lft
 
 	let tabs = []
 	let currentbuf = winbufnr(0)
@@ -149,36 +148,25 @@ function! stline#tabline() abort
 	for bufnum in bufnums
 		let screen_num += 1
 		let bufpath = bufname(bufnum)
-		if currentbuf == bufnum
-			let [centerbuf, s:centerbuf] = [bufnum, bufnum]
-		endif
 		let tab = {}
 		let tab.hl  = currentbuf == bufnum ? 'C' : 'N'
 		let tab.hl .= getbufvar(bufnum, '&mod') ? 'M' : ''
 		let tab.label  = lpad.screen_num
-		let tab.label .= strlen(bufpath) ? ' '.fnamemodify(bufpath, ':t') : '[No Name]'
+		let tab.label .= strlen(bufpath) ? ' '.fnamemodify(bufpath, ':t') : ' [No Name]'
 		let tab.width  = strwidth(tab.label) + 1
 		let tab.label  = substitute(strtrans(tab.label), '%', '%%', 'g').' '
 		let tabs += [tab]
-	endfor
 
-	" 1. setup
-	let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': &columns / 2 }
-	let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
-
-	" 2. sum the string lengths for the left and right halves
-	let currentside = lft
-	let lpad_width = strwidth(lpad)
-	for tab in tabs
-		if tab.hl[0] == "C"
-			let halfwidth = tab.width / 2
-			let lft.width += halfwidth
-			let rgt.width += tab.width - halfwidth
+		if currentbuf == bufnum
+"			let [centerbuf, s:centerbuf] = [bufnum, bufnum]
+			let lft.width = tab.width / 2
+			let rgt.width = tab.width - lft.width
 			let currentside = rgt
 		else
 			let currentside.width += tab.width
 		endif
 	endfor
+
 	if currentside is lft " centered buffer not seen?
 		" then blame any overflow on the right side, to protect the left
 		let [lft.width, rgt.width] = [0, lft.width]
