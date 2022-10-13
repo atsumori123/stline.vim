@@ -1,15 +1,18 @@
+"https://github.com/ap/vim-buftabline
+"
+
 let s:modes = {
-  \  'n':      [' NORMAL '  , '%#STLineNormal#' , '%#STLineNormalR#'],
-  \  'i':      [' INSERT '  , '%#STLineInsert#' , '%#STLineInsertR#'],
-  \  'r':      [' REPLACE ' , '%#STLineReplace#', '%#STLineReplaceR#'],
-  \  'v':      [' VISUAL '  , '%#STLineVisual#' , '%#STLineVisualR#'],
-  \  'V':      [' V-LINE '  , '%#STLineVisual#' , '%#STLineVisualR#'],
-  \  "\<C-v>": [' V-BLOCK ' , '%#STLineVisual#' , '%#STLineVisualR#'],
-  \  'c':      [' COMMAND ' , '%#STLineNormal#' , '%#STLineNormalR#'],
-  \  's':      [' SELECT '  , '%#STLineVisual#' , '%#STLineVisualR#'],
-  \  'S':      [' S-LINE '  , '%#STLineVisual#' , '%#STLineVisualR#'],
-  \  "\<C-s>": [' S-BLOCK ' , '%#STLineVisual#' , '%#STLineVisualR#'],
-  \  't':      [' TERMINAL ', '%#STLineNormal#' , '%#STLineNormalR#'],
+  \  'n':      [' NORMAL '  , '%#STLineNML#' , '%#STLineNML_R#'],
+  \  'i':      [' INSERT '  , '%#STLineINS#' , '%#STLineINS_R#'],
+  \  'r':      [' REPLACE ' , '%#STLineREP#' , '%#STLineREP_R#'],
+  \  'v':      [' VISUAL '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
+  \  'V':      [' V-LINE '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
+  \  "\<C-v>": [' V-BLOCK ' , '%#STLineVIS#' , '%#STLineVIS_R#'],
+  \  'c':      [' COMMAND ' , '%#STLineNML#' , '%#STLineNML_R#'],
+  \  's':      [' SELECT '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
+  \  'S':      [' S-LINE '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
+  \  "\<C-s>": [' S-BLOCK ' , '%#STLineVIS#' , '%#STLineVIS_R#'],
+  \  't':      [' TERMINAL ', '%#STLineNML#' , '%#STLineNML_R#'],
   \}
 
 "---------------------------------------------------------------
@@ -25,17 +28,24 @@ endfunction
 function! s:get_git_branch() abort
 "	if !exists('*fugitive#statusline') | return '' | endif
 	let branch = fugitive#statusline()
-	return len(branch) ? '  '.branch[5:-3] : ''
+	return len(branch) ? ' '.branch[5:-3] : ''
 endfunction
 
 "---------------------------------------------------------------
 " get_tail_space
 "---------------------------------------------------------------
-function! s:get_warnning_tail_space() abort
+function! s:check_tail_space() abort
 	if !has_key(b:, 'tail_space')
 		call stline#update_statusline()
 	endif
 	return b:tail_space
+endfunction
+
+"---------------------------------------------------------------
+" stlien#get_user_buffers
+"---------------------------------------------------------------
+function! stline#get_user_buffers() abort
+	return filter(range(1, bufnr('$')), 'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
 endfunction
 
 "---------------------------------------------------------------
@@ -52,8 +62,8 @@ function! stline#active_statusline() abort
 		" git branch
 		let git_branch = s:get_git_branch()
 		if len(git_branch)
-   				let statusline .= '%#STLineInfo#'
-				let statusline .= git_branch.' %+'
+			let statusline .= '%#STLineINF#'
+			let statusline .= git_branch.' %+'
 		endif
 
 		" filename, modify, readonly
@@ -64,7 +74,7 @@ function! stline#active_statusline() abort
 		let statusline .= '%=%y %*'
 
 		" fileencoding, fileformat
-		let statusline .= '%#STLineInfo#'
+		let statusline .= '%#STLineINF#'
 		let statusline .= ' %{&fileencoding}[%{&fileformat}] %*'
 
 		" line. column
@@ -72,10 +82,9 @@ function! stline#active_statusline() abort
 		let statusline .= ' %p%% %l/%L :%c %*'
 
 		" warnning
-"		if has_key(b:, 'tail_space') && b:tail_space
-		let tail_space = s:get_warnning_tail_space()
+		let tail_space = s:check_tail_space()
 		if tail_space
-			let statusline .= '%#STLineWarn#'
+			let statusline .= '%#STLineWRN#'
 			let statusline .= ' ['.tail_space.'] %*'
 		endif
 	else
@@ -107,19 +116,15 @@ endfunction
 " stline#statusline
 "---------------------------------------------------------------
 function! stline#statusline(active) abort
-    if &buftype ==# 'nofile' || &filetype ==# 'netrw'
-        return
+	if &buftype ==# 'nofile' || &buftype ==# 'nowrite' || &filetype ==# 'netrw'
+		return
 
-    elseif &buftype ==# 'nowrite'
-        " Don't set a custom status line for certain special windows.
-        return
+	elseif a:active == v:true
+		setlocal statusline=%!stline#active_statusline()
 
-    elseif a:active == v:true
-        setlocal statusline=%!stline#active_statusline()
-
-    elseif a:active == v:false
-        setlocal statusline=%!stline#inactive_statusline()
-    endif
+	elseif a:active == v:false
+		setlocal statusline=%!stline#inactive_statusline()
+	endif
 endfunction
 
 "---------------------------------------------------------------
@@ -130,19 +135,12 @@ function! stline#update_statusline() abort
 endfunction
 
 "---------------------------------------------------------------
-" s:get_user_buffers
-"---------------------------------------------------------------
-function! s:get_user_buffers() abort
-	return filter(range(1,bufnr('$')),'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
-endfunction
-
-"---------------------------------------------------------------
 " stline#tabline
 "---------------------------------------------------------------
 let s:centerbuf = winbufnr(0)
 function! stline#tabline() abort
-	let lpad    = '| '
-	let bufnums = s:get_user_buffers()
+	let lpad    = ' '
+	let bufnums = stline#get_user_buffers()
 	let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
 
 	let tabs = []
@@ -150,15 +148,17 @@ function! stline#tabline() abort
 	let screen_num = 0
 	for bufnum in bufnums
 		let screen_num += 1
-		if currentbuf == bufnum | let [centerbuf, s:centerbuf] = [bufnum, bufnum] | endif
-
-		let tab = {}
-		let tab.number  = bufnum
-		let tab.hilite  = getbufvar(bufnum, '&mod') ? 'Modified' : ''
-		let tab.hilite .= currentbuf == bufnum ? 'Current' : 'Active'
 		let bufpath = bufname(bufnum)
-		let tab.label  = screen_num
+		if currentbuf == bufnum
+			let [centerbuf, s:centerbuf] = [bufnum, bufnum]
+		endif
+		let tab = {}
+		let tab.hl  = currentbuf == bufnum ? 'C' : 'N'
+		let tab.hl .= getbufvar(bufnum, '&mod') ? 'M' : ''
+		let tab.label  = lpad.screen_num
 		let tab.label .= strlen(bufpath) ? ' '.fnamemodify(bufpath, ':t') : '[No Name]'
+		let tab.width  = strwidth(tab.label) + 1
+		let tab.label  = substitute(strtrans(tab.label), '%', '%%', 'g').' '
 		let tabs += [tab]
 	endfor
 
@@ -170,9 +170,7 @@ function! stline#tabline() abort
 	let currentside = lft
 	let lpad_width = strwidth(lpad)
 	for tab in tabs
-		let tab.width = lpad_width + strwidth(tab.label) + 1
-		let tab.label = lpad.substitute(strtrans(tab.label), '%', '%%', 'g').' '
-		if centerbuf == tab.number
+		if tab.hl[0] == "C"
 			let halfwidth = tab.width / 2
 			let lft.width += halfwidth
 			let rgt.width += tab.width - halfwidth
@@ -207,41 +205,42 @@ function! stline#tabline() abort
 		endfor
 	endif
 
-	if len(tabs) | let tabs[0].label = substitute(tabs[0].label, lpad, ' ', '') | endif
+	if len(tabs)
+		let tabs[0].label = substitute(tabs[0].label, lpad, ' ', '')
+	endif
+
 	let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
-	return swallowclicks.join(map(tabs,'"%#STLine".v:val.hilite."#".strtrans(v:val.label)'),'').'%#STLineFill#'
+	return swallowclicks.join(map(tabs,'"%#STLine".v:val.hl."#".strtrans(v:val.label)'),'').'%#STLineNML_R#'
 endfunction
 
 "---------------------------------------------------------------
 " stline#tabline
 "---------------------------------------------------------------
 function! stline#tabline_update()
-"	set guioptions-=e
 	set showtabline=2
 	set tabline=%!stline#tabline()
 endfunction
 
-"===========================================================
+"===============================================================
 " stline#generate_highlight_groups
-"===========================================================
+"===============================================================
 function! stline#generate_highlight_groups() abort
-	exec 'highlight STLineNormal     ctermbg=17  ctermfg=white cterm=bold guibg=midnightblue     guifg=lightskyblue gui=bold'
-	exec 'highlight STLineInsert     ctermbg=22  ctermfg=white cterm=bold guibg=darkgreen        guifg=palegreen    gui=bold'
-	exec 'highlight STLineVisual     ctermbg=134 ctermfg=white cterm=bold guibg=mediumvioletred  guifg=pink         gui=bold'
-	exec 'highlight STLineReplace    ctermbg=202 ctermfg=white cterm=bold guibg=tomato           guifg=mistyrose    gui=bold'
+	exec 'highlight STLineNML   ctermbg=17  ctermfg=255 cterm=bold guibg=midnightblue     guifg=lightskyblue gui=bold'
+	exec 'highlight STLineINS   ctermbg=22  ctermfg=255 cterm=bold guibg=darkgreen        guifg=palegreen    gui=bold'
+	exec 'highlight STLineVIS   ctermbg=134 ctermfg=255 cterm=bold guibg=mediumvioletred  guifg=pink         gui=bold'
+	exec 'highlight STLineREP   ctermbg=202 ctermfg=255 cterm=bold guibg=tomato           guifg=mistyrose    gui=bold'
 
-	exec 'highlight STLineWarn       ctermbg=17  ctermfg=white            guibg=pink             guifg=red'
-	exec 'highlight STLineInfo       ctermbg=237 ctermfg=255              guibg=#505050          guifg=white'
+	exec 'highlight STLineWRN   ctermbg=17  ctermfg=255            guibg=pink             guifg=red'
+	exec 'highlight STLineINF   ctermbg=237 ctermfg=255            guibg=#505050          guifg=white'
 
-	exec 'highlight STLineNormalR  ctermbg=235 ctermfg=26               guibg=#303030          guifg=royalblue'
-	exec 'highlight STLineInsertR  ctermbg=235 ctermfg=34               guibg=#303030          guifg=mediumseagreen'
-	exec 'highlight STLineVisualR  ctermbg=235 ctermfg=171              guibg=#303030          guifg=hotpink'
-	exec 'highlight STLineReplaceR ctermbg=235 ctermfg=172              guibg=#303030          guifg=coral'
+	exec 'highlight STLineNML_R ctermbg=235 ctermfg=26             guibg=#303030          guifg=royalblue'
+	exec 'highlight STLineINS_R ctermbg=235 ctermfg=34             guibg=#303030          guifg=mediumseagreen'
+	exec 'highlight STLineVIS_R ctermbg=235 ctermfg=171            guibg=#303030          guifg=hotpink'
+	exec 'highlight STLineREP_R ctermbg=235 ctermfg=172            guibg=#303030          guifg=coral'
 
-	exec 'highlight STLineCurrent     ctermbg=17  ctermfg=255'
-	exec 'highlight STLineActive      ctermbg=235 ctermfg=255'
-	exec 'highlight STLineFill        ctermbg=235'
-	exec 'highlight STLineModifiedCurrent ctermbg=17  ctermfg=134'
-	exec 'highlight STLineModifiedActive ctermbg=235 ctermfg=134'
+	exec 'highlight STLineC     ctermbg=17  ctermfg=255'
+	exec 'highlight STLineN     ctermbg=235 ctermfg=255'
+	exec 'highlight STLineCM    ctermbg=17  ctermfg=134'
+	exec 'highlight STLineNM    ctermbg=235 ctermfg=134'
 endfunction
 
