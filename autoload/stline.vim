@@ -1,5 +1,15 @@
-"https://github.com/ap/vim-buftabline
+"===============================================================
+" Reference plugins
 "
+" tabline:
+" https://github.com/ap/vim-buftabline
+"
+" statusline:
+" https://github.com/bluz71/vim-mistfly-statusline
+"
+" git branch name:
+" https://github.com/itchyny/vim-gitbranch
+"===============================================================
 
 let s:modes = {
   \  'n':      [' NORMAL '  , '%#STLineNML#' , '%#STLineNML_R#'],
@@ -26,9 +36,8 @@ endfunction
 " get_git_branch
 "---------------------------------------------------------------
 function! s:get_git_branch() abort
-"	if !exists('*fugitive#statusline') | return '' | endif
-	let branch = fugitive#statusline()
-	return len(branch) ? ' '.branch[5:-3] : ''
+	let git_branch_name = s:GitBranchName()
+	return len(git_branch_name) ? ' '.git_branch_name : ''
 endfunction
 
 "---------------------------------------------------------------
@@ -210,44 +219,82 @@ function! stline#tabline_update()
 	set tabline=%!stline#tabline()
 endfunction
 
-"===============================================================
+"---------------------------------------------------------------
 " stline#generate_highlight_groups
-"===============================================================
+"---------------------------------------------------------------
 function! stline#generate_highlight_groups() abort
-"	exec 'highlight STLineNML   ctermbg=17  ctermfg=255 cterm=bold guibg=midnightblue     guifg=lightskyblue gui=bold'
-"	exec 'highlight STLineINS   ctermbg=22  ctermfg=255 cterm=bold guibg=darkgreen        guifg=palegreen    gui=bold'
-"	exec 'highlight STLineVIS   ctermbg=134 ctermfg=255 cterm=bold guibg=mediumvioletred  guifg=pink         gui=bold'
-"	exec 'highlight STLineREP   ctermbg=202 ctermfg=255 cterm=bold guibg=tomato           guifg=mistyrose    gui=bold'
+	if has_key(g:, 'stline_theme')
+		exe "ru autoload/themes/".g:stline_theme.".vim"
+		if !exists('*themes#{g:stline_theme}#hi')
+			exe "ru autoload/themes/default.vim"
+			let g:stline_theme = 'default'
+		endif
+	endif
+	call themes#{g:stline_theme}#hi()
+endfunction
+
+"===============================================================
+" Git utilities
+"===============================================================
+
+" The following Git branch name functionality derives from:
+"   https://github.com/itchyny/vim-gitbranch
 "
-"	exec 'highlight STLineWRN   ctermbg=17  ctermfg=255            guibg=pink             guifg=red'
-"	exec 'highlight STLineINF   ctermbg=237 ctermfg=255            guibg=#505050          guifg=white'
+" MIT Licensed Copyright (c) 2014-2017 itchyny
 "
-"	exec 'highlight STLineNML_R ctermbg=235 ctermfg=26             guibg=#303030          guifg=royalblue'
-"	exec 'highlight STLineINS_R ctermbg=235 ctermfg=34             guibg=#303030          guifg=mediumseagreen'
-"	exec 'highlight STLineVIS_R ctermbg=235 ctermfg=171            guibg=#303030          guifg=hotpink'
-"	exec 'highlight STLineREP_R ctermbg=235 ctermfg=172            guibg=#303030          guifg=coral'
-"
-"	exec 'highlight STLineC     ctermbg=17  ctermfg=255            guibg=midnightblue     guifg=white'
-"	exec 'highlight STLineN     ctermbg=235 ctermfg=255            guibg=#303030          guifg=white'
-"	exec 'highlight STLineCM    ctermbg=17  ctermfg=134            guibg=midnightblue     guifg=lightskyblue'
-"	exec 'highlight STLineNM    ctermbg=235 ctermfg=134            guibg=#303030          guifg=lightskyblue'
+function! s:GitBranchName() abort
+	if get(b:, 'gitbranch_pwd', '') !=# expand('%:p:h') || !has_key(b:, 'gitbranch_path')
+		call s:GitDetect()
+	endif
 
-	exec 'highlight STLineNML   ctermbg=17  ctermfg=255 cterm=bold guibg=#90AE74          guifg=#3D3D3D gui=bold'
-	exec 'highlight STLineINS   ctermbg=22  ctermfg=255 cterm=bold guibg=#7E9DBC          guifg=#3D3D3D gui=bold'
-	exec 'highlight STLineVIS   ctermbg=134 ctermfg=255 cterm=bold guibg=#B395B3          guifg=#3D3D3D gui=bold'
-	exec 'highlight STLineREP   ctermbg=202 ctermfg=255 cterm=bold guibg=#C88686          guifg=#3D3D3D gui=bold'
+	if has_key(b:, 'gitbranch_path') && filereadable(b:gitbranch_path)
+		let l:branchDetails = get(readfile(b:gitbranch_path), 0, '')
+		if l:branchDetails =~# '^ref: '
+			return substitute(l:branchDetails, '^ref: \%(refs/\%(heads/\|remotes/\|tags/\)\=\)\=', '', '')
+		elseif l:branchDetails =~# '^\x\{20\}'
+			return l:branchDetails[:6]
+		endif
+	endif
 
-	exec 'highlight STLineWRN   ctermbg=17  ctermfg=255            guibg=#E5C07B          guifg=#3D3D3D'
-	exec 'highlight STLineINF   ctermbg=237 ctermfg=255            guibg=#505050          guifg=#AAAAAA'
+	return ''
+endfunction
 
-	exec 'highlight STLineNML_R ctermbg=235 ctermfg=26             guibg=#303030          guifg=#90AE74'
-	exec 'highlight STLineINS_R ctermbg=235 ctermfg=34             guibg=#303030          guifg=#7E9DBC'
-	exec 'highlight STLineVIS_R ctermbg=235 ctermfg=171            guibg=#303030          guifg=#B395B3'
-	exec 'highlight STLineREP_R ctermbg=235 ctermfg=172            guibg=#303030          guifg=#C88686'
+function! s:GitDetect() abort
+	unlet! b:gitbranch_path
+	let b:gitbranch_pwd = expand('%:p:h')
+	let l:dir = s:GitDir(b:gitbranch_pwd)
 
-	exec 'highlight STLineC     ctermbg=17  ctermfg=255            guibg=#90AE74          guifg=#3D3D3D'
-	exec 'highlight STLineN     ctermbg=235 ctermfg=255            guibg=#303030          guifg=#9199A2'
-	exec 'highlight STLineCM    ctermbg=17  ctermfg=134            guibg=#7E9DBC          guifg=#3D3D3D'
-	exec 'highlight STLineNM    ctermbg=235 ctermfg=134            guibg=#303030          guifg=lightskyblue'
+	if l:dir !=# ''
+		let l:path = l:dir . '/HEAD'
+		if filereadable(l:path)
+			let b:gitbranch_path = l:path
+		endif
+	endif
+endfunction
+
+function! s:GitDir(path) abort
+	let l:path = a:path
+	let l:prev = ''
+
+	while l:path !=# prev
+		let l:dir = path . '/.git'
+		let l:type = getftype(l:dir)
+		if l:type ==# 'dir' && isdirectory(l:dir . '/objects')
+					\ && isdirectory(l:dir . '/refs')
+					\ && getfsize(l:dir . '/HEAD') > 10
+			" Looks like we found a '.git' directory.
+			return l:dir
+		elseif l:type ==# 'file'
+			let l:reldir = get(readfile(l:dir), 0, '')
+			if l:reldir =~# '^gitdir: '
+				return simplify(l:path . '/' . l:reldir[8:])
+			endif
+		endif
+		let l:prev = l:path
+		" Go up a directory searching for a '.git' directory.
+		let path = fnamemodify(l:path, ':h')
+	endwhile
+
+	return ''
 endfunction
 
