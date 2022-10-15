@@ -1,20 +1,17 @@
-function! themes#angr#hi() abort
+function! themes#monochrome#hi() abort
 	let cg = has('unix') ? "cterm" : "gui"
-	let bc01 = {"cterm" : "17" , "gui" : "#90AE74"}
-	let bc02 = {"cterm" : "23" , "gui" : "#7E9DBC"}
-	let bc03 = {"cterm" : "163", "gui" : "#B395B3"}
-	let bc04 = {"cterm" : "166", "gui" : "#C88686"}
+	let bc01 = {"cterm" : "17" , "gui" : "black"}
 	let bc05 = {"cterm" : "235", "gui" : "#303030"}
-	let bc06 = {"cterm" : "237", "gui" : "#505050"}
+	let bc06 = {"cterm" : "237", "gui" : "#484848"}
 	let bc07 = {"cterm" : "222", "gui" : "moccasin"}
 
-	let fc01 = {"cterm" : "27" , "gui" : "#90AE74"}
-	let fc02 = {"cterm" : "36" , "gui" : "#7E9DBC"}
-	let fc03 = {"cterm" : "207", "gui" : "#B395B3"}
-	let fc04 = {"cterm" : "172", "gui" : "#C88686"}
-	let fc05 = {"cterm" : "251", "gui" : "#303030"}
+	let fc01 = {"cterm" : "27" , "gui" : "darkgray"}
+	let fc02 = {"cterm" : "36" , "gui" : "#61AFEF"}
+	let fc03 = {"cterm" : "207", "gui" : "#C678DD"}
+	let fc04 = {"cterm" : "172", "gui" : "#E06C75"}
 	let fc06 = {"cterm" : "0"  , "gui" : "black"}
-	let fc08 = {"cterm" : "251", "gui" : "silver"}
+	let fc06 = {"cterm" : "255", "gui" : "white"}
+
 
 "=======================================================================================================
 " Statusline
@@ -24,13 +21,13 @@ function! themes#angr#hi() abort
 "	 |   S1   |   S2   |          S3                                   |     S2     |     S1      | S4  |
 "	 +--------+--------+-----------------------------------------------+------------+-------------+-----+
 	" Statusline S1
-	exec "highlight STLineS1_N ".cg."bg=".bc01[cg]." ".cg."fg=".fc05[cg]." ".cg."=bold"
-	exec "highlight STLineS1_I ".cg."bg=".bc02[cg]." ".cg."fg=".fc05[cg]." ".cg."=bold"
-	exec "highlight STLineS1_V ".cg."bg=".bc03[cg]." ".cg."fg=".fc05[cg]." ".cg."=bold"
-	exec "highlight STLineS1_R ".cg."bg=".bc04[cg]." ".cg."fg=".fc05[cg]." ".cg."=bold"
+	exec "highlight STLineS1_N ".cg."bg=".bc01[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
+	exec "highlight STLineS1_I ".cg."bg=".bc01[cg]." ".cg."fg=".fc02[cg]." ".cg."=bold"
+	exec "highlight STLineS1_V ".cg."bg=".bc01[cg]." ".cg."fg=".fc03[cg]." ".cg."=bold"
+	exec "highlight STLineS1_R ".cg."bg=".bc01[cg]." ".cg."fg=".fc04[cg]." ".cg."=bold"
 
 	" Statusline S2
-	exec "highlight STLineS2 ".cg."bg=".bc06[cg]." ".cg."fg=".fc08[cg]
+	exec "highlight STLineS2 ".cg."bg=".bc06[cg]." ".cg."fg=".fc01[cg]
 
 	" Statusline S3
 	exec "highlight STLineS3_N ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]
@@ -44,9 +41,9 @@ function! themes#angr#hi() abort
 "=======================================================================================================
 " Tabline
 "=======================================================================================================
-	exec "highlight STLineCur    ".cg."bg=".bc01[cg]." ".cg."fg=".fc05[cg]
-	exec "highlight STLineCurMod ".cg."bg=".bc02[cg]." ".cg."fg=".fc05[cg]
-	exec "highlight STLineNml    ".cg."bg=".bc05[cg]." ".cg."fg=".fc08[cg]
+	exec "highlight STLineCur    ".cg."bg=".bc01[cg]." ".cg."fg=".fc06[cg]
+	exec "highlight STLineCurMod ".cg."bg=".bc01[cg]." ".cg."fg=".fc02[cg]
+	exec "highlight STLineNml    ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]
 	exec "highlight STLineNmlMod ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
 endfunction
 
