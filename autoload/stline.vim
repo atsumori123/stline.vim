@@ -12,17 +12,17 @@
 "===============================================================
 
 let s:modes = {
-  \  'n':      [' NORMAL '  , '%#STLineNML#' , '%#STLineNML_R#'],
-  \  'i':      [' INSERT '  , '%#STLineINS#' , '%#STLineINS_R#'],
-  \  'r':      [' REPLACE ' , '%#STLineREP#' , '%#STLineREP_R#'],
-  \  'v':      [' VISUAL '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
-  \  'V':      [' V-LINE '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
-  \  "\<C-v>": [' V-BLOCK ' , '%#STLineVIS#' , '%#STLineVIS_R#'],
-  \  'c':      [' COMMAND ' , '%#STLineNML#' , '%#STLineNML_R#'],
-  \  's':      [' SELECT '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
-  \  'S':      [' S-LINE '  , '%#STLineVIS#' , '%#STLineVIS_R#'],
-  \  "\<C-s>": [' S-BLOCK ' , '%#STLineVIS#' , '%#STLineVIS_R#'],
-  \  't':      [' TERMINAL ', '%#STLineNML#' , '%#STLineNML_R#'],
+  \  'n':      [' NORMAL '  , '%#STLineS1_N#' , '%#STLineS3_N#'],
+  \  'i':      [' INSERT '  , '%#STLineS1_I#' , '%#STLineS3_I#'],
+  \  'r':      [' REPLACE ' , '%#STLineS1_R#' , '%#STLineS3_R#'],
+  \  'v':      [' VISUAL '  , '%#STLineS1_V#' , '%#STLineS3_V#'],
+  \  'V':      [' V-LINE '  , '%#STLineS1_V#' , '%#STLineS3_V#'],
+  \  "\<C-v>": [' V-BLOCK ' , '%#STLineS1_V#' , '%#STLineS3_V#'],
+  \  'c':      [' COMMAND ' , '%#STLineS1_N#' , '%#STLineS3_N#'],
+  \  's':      [' SELECT '  , '%#STLineS1_V#' , '%#STLineS3_V#'],
+  \  'S':      [' S-LINE '  , '%#STLineS1_V#' , '%#STLineS3_V#'],
+  \  "\<C-s>": [' S-BLOCK ' , '%#STLineS1_V#' , '%#STLineS3_V#'],
+  \  't':      [' TERMINAL ', '%#STLineS1_N#' , '%#STLineS3_N#'],
   \}
 
 "---------------------------------------------------------------
@@ -71,7 +71,7 @@ function! stline#active_statusline() abort
 		" git branch
 		let git_branch = s:get_git_branch()
 		if len(git_branch)
-			let statusline .= '%#STLineINF#'
+			let statusline .= '%#STLineS2#'
 			let statusline .= git_branch.' %+'
 		endif
 
@@ -83,7 +83,7 @@ function! stline#active_statusline() abort
 		let statusline .= '%=%*'
 
 		" fileencoding, fileformat
-		let statusline .= '%#STLineINF#'
+		let statusline .= '%#STLineS2#'
 		let statusline .= ' %{&fileencoding}[%{&fileformat}] %*'
 
 		" line. column
@@ -93,7 +93,7 @@ function! stline#active_statusline() abort
 		" warnning
 		let tail_space = s:check_tail_space()
 		if tail_space
-			let statusline .= '%#STLineWRN#'
+			let statusline .= '%#STLineS4#'
 			let statusline .= ' ['.tail_space.'] %*'
 		endif
 	else
@@ -158,8 +158,8 @@ function! stline#tabline() abort
 		let screen_num += 1
 		let bufpath = bufname(bufnum)
 		let tab = {}
-		let tab.hl  = currentbuf == bufnum ? 'C' : 'N'
-		let tab.hl .= getbufvar(bufnum, '&mod') ? 'M' : ''
+		let tab.hl  = currentbuf == bufnum ? 'Cur' : 'Nml'
+		let tab.hl .= getbufvar(bufnum, '&mod') ? 'Mod' : ''
 		let tab.label  = lpad.screen_num
 		let tab.label .= strlen(bufpath) ? ' '.fnamemodify(bufpath, ':t') : ' [No Name]'
 		let tab.width  = strwidth(tab.label) + 1
@@ -207,7 +207,7 @@ function! stline#tabline() abort
 	endif
 
 	let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
-	return swallowclicks.join(map(tabs,'"%#STLine".v:val.hl."#".strtrans(v:val.label)'),'').'%#STLineNML_R#'
+	return swallowclicks.join(map(tabs,'"%#STLine".v:val.hl."#".strtrans(v:val.label)'),'').'%#STLineS3_N#'
 endfunction
 
 "---------------------------------------------------------------
