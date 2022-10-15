@@ -1,16 +1,16 @@
 function! themes#monochrome#hi() abort
 	let cg = has('unix') ? "cterm" : "gui"
-	let bc01 = {"cterm" : "17" , "gui" : "black"}
+	let bc01 = {"cterm" : "0 " , "gui" : "black"}
 	let bc05 = {"cterm" : "235", "gui" : "#303030"}
 	let bc06 = {"cterm" : "237", "gui" : "#484848"}
 	let bc07 = {"cterm" : "222", "gui" : "moccasin"}
 
-	let fc01 = {"cterm" : "27" , "gui" : "darkgray"}
-	let fc02 = {"cterm" : "36" , "gui" : "#61AFEF"}
+	let fc01 = {"cterm" : "247", "gui" : "darkgray"}
+	let fc02 = {"cterm" : "12" , "gui" : "#61AFEF"}
 	let fc03 = {"cterm" : "207", "gui" : "#C678DD"}
 	let fc04 = {"cterm" : "172", "gui" : "#E06C75"}
 	let fc06 = {"cterm" : "0"  , "gui" : "black"}
-	let fc06 = {"cterm" : "255", "gui" : "white"}
+	let fc07 = {"cterm" : "255", "gui" : "white"}
 
 
 "=======================================================================================================
@@ -41,7 +41,7 @@ function! themes#monochrome#hi() abort
 "=======================================================================================================
 " Tabline
 "=======================================================================================================
-	exec "highlight STLineCur    ".cg."bg=".bc01[cg]." ".cg."fg=".fc06[cg]
+	exec "highlight STLineCur    ".cg."bg=".bc01[cg]." ".cg."fg=".fc07[cg]
 	exec "highlight STLineCurMod ".cg."bg=".bc01[cg]." ".cg."fg=".fc02[cg]
 	exec "highlight STLineNml    ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]
 	exec "highlight STLineNmlMod ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
