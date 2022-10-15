@@ -136,7 +136,7 @@ endfunction
 " stline#update_statusline
 "---------------------------------------------------------------
 function! stline#update_statusline() abort
-	let b:tail_space = search('[\t| ]$', 'nw')
+	let b:tail_space = search('[\t ]$', 'nw')
 endfunction
 
 "---------------------------------------------------------------
