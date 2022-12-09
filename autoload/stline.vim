@@ -223,13 +223,17 @@ endfunction
 " stline#generate_highlight_groups
 "---------------------------------------------------------------
 function! stline#generate_highlight_groups() abort
-	if has_key(g:, 'stline_theme')
+	if !has_key(g:, 'stline_theme')
+		let g:stline_theme = 'default'
+		exe "ru autoload/themes/default.vim"
+	else
 		exe "ru autoload/themes/".g:stline_theme.".vim"
 		if !exists('*themes#{g:stline_theme}#hi')
-			exe "ru autoload/themes/default.vim"
 			let g:stline_theme = 'default'
+			exe "ru autoload/themes/default.vim"
 		endif
 	endif
+
 	call themes#{g:stline_theme}#hi()
 endfunction
 
