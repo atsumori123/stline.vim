@@ -77,7 +77,11 @@ function! stline#active_statusline() abort
 
 		" filename, modify, readonly
 		let statusline .= s:get_highlight_from_mode(mode, 1)
-		let statusline .= ' %<%F %m'."%{&readonly ? '[RO]' : ''}"
+		if &buftype == 'quickfix'
+			let statusline .= ' %<'.getqflist({'title' : 1})['title'].' %m'."%{&readonly ? '[RO]' : ''}"
+		else
+			let statusline .= ' %<%F %m'."%{&readonly ? '[RO]' : ''}"
+		endif
 
 		" filetype
 		let statusline .= '%=%*'
