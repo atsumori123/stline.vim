@@ -1,12 +1,12 @@
 function! themes#gruvbit#hi() abort
-	let cg = has('unix') ? "cterm" : "gui"
+	let cg = (has('termguicolors') && &termguicolors) || has('gui_running') ? "gui" : "cterm"
 	let bc01 = {"cterm" : "0 " , "gui" : "black"}
 	let bc02 = {"cterm" : "208", "gui" : "#fe8019"}
 	let bc05 = {"cterm" : "235", "gui" : "#303030"}
 	let bc06 = {"cterm" : "237", "gui" : "#484848"}
 	let bc07 = {"cterm" : "222", "gui" : "moccasin"}
 
-	let fc01 = {"cterm" : "247", "gui" : "#83A598"}
+	let fc01 = {"cterm" : "109", "gui" : "#83A598"}
 	let fc02 = {"cterm" : "12" , "gui" : "#61AFEF"}
 	let fc03 = {"cterm" : "207", "gui" : "#C678DD"}
 	let fc04 = {"cterm" : "172", "gui" : "#E06C75"}
