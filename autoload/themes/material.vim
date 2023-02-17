@@ -4,8 +4,8 @@ function! themes#material#hi() abort
 	let bc02 = {"cterm" : "113", "gui" : "#8BD649"}
 	let bc03 = {"cterm" : "171", "gui" : "#C792EA"}
 	let bc04 = {"cterm" : "209", "gui" : "#f6937e"}
-	let bc05 = {"cterm" : "238", "gui" : "#37474f"}
-	let bc06 = {"cterm" : "66" , "gui" : "#546e7a"}
+	let bc05 = {"cterm" : "238", "gui" : "#263238"}
+	let bc06 = {"cterm" : "66" , "gui" : "#37474f"}
 	let bc07 = {"cterm" : "222", "gui" : "moccasin"}
 
 	let fc01 = {"cterm" : "0"  , "gui" : "Black"}
