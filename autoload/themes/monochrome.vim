@@ -43,7 +43,7 @@ function! themes#monochrome#hi() abort
 "=======================================================================================================
 	exec "highlight STLineCur    ".cg."bg=".bc01[cg]." ".cg."fg=".fc07[cg]
 	exec "highlight STLineCurMod ".cg."bg=".bc01[cg]." ".cg."fg=".fc02[cg]
-	exec "highlight STLineNml    ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]
-	exec "highlight STLineNmlMod ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
+	exec "highlight STLineNml    ".cg."bg=".bc06[cg]." ".cg."fg=".fc01[cg]
+	exec "highlight STLineNmlMod ".cg."bg=".bc06[cg]." ".cg."fg=".fc02[cg]
 endfunction
 
