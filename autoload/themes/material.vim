@@ -1,16 +1,20 @@
+function! s:style(bg, fg, opt) abort
+	let style = "ctermbg=".a:bg[0]." ctermfg=".a:fg[0]." guibg=".a:bg[1]." guifg=".a:fg[1]
+	if !empty(a:opt) | let style .= " cterm=".a:opt." gui=".a:opt | endif
+	return style
+endfunction
+
 function! themes#material#hi() abort
-	let cg = (has('termguicolors') && &termguicolors) || has('gui_running') ? "gui" : "cterm"
-	let bc01 = {"cterm" : "116", "gui" : "#80CBC4"}
-	let bc02 = {"cterm" : "113", "gui" : "#8BD649"}
-	let bc03 = {"cterm" : "171", "gui" : "#C792EA"}
-	let bc04 = {"cterm" : "209", "gui" : "#f6937e"}
-	let bc05 = {"cterm" : "238", "gui" : "#263238"}
-	let bc06 = {"cterm" : "66" , "gui" : "#37474f"}
-	let bc07 = {"cterm" : "222", "gui" : "moccasin"}
+	let bc01 = ["116", "#80CBC4" ]
+	let bc02 = ["113", "#8BD649" ]
+	let bc03 = ["171", "#C792EA" ]
+	let bc04 = ["209", "#f6937e" ]
+	let bc05 = ["238", "#263238" ]
+	let bc06 = ["66" , "#37474f" ]
+	let bc07 = ["222", "moccasin"]
 
-	let fc01 = {"cterm" : "0"  , "gui" : "Black"}
-	let fc02 = {"cterm" : "255", "gui" : "white"}
-
+	let fc01 = ["0"  , "Black"   ]
+	let fc02 = ["255", "white"   ]
 
 "=======================================================================================================
 " Statusline
@@ -20,28 +24,28 @@ function! themes#material#hi() abort
 "	 |   S1   |   S2   |          S3                                   |     S2     |     S1      | S4  |
 "	 +--------+--------+-----------------------------------------------+------------+-------------+-----+
 	" Statusline S1
-	exec "highlight STLineS1_N ".cg."bg=".bc01[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
-	exec "highlight STLineS1_I ".cg."bg=".bc02[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
-	exec "highlight STLineS1_V ".cg."bg=".bc03[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
-	exec "highlight STLineS1_R ".cg."bg=".bc04[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
+	exec 'highlight STLineS1_N '.s:style(bc01, fc01, 'bold')
+	exec 'highlight STLineS1_I '.s:style(bc02, fc01, 'bold')
+	exec 'highlight STLineS1_V '.s:style(bc03, fc01, 'bold')
+	exec 'highlight STLineS1_R '.s:style(bc04, fc01, 'bold')
 
 	" Statusline S2
-	exec "highlight STLineS2 ".cg."bg=".bc06[cg]." ".cg."fg=".fc02[cg]
+	exec 'highlight STLineS2 '.s:style(bc06, fc02, '')
 
 	" Statusline S3
-	exec "highlight STLineS3_N ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
-	exec "highlight STLineS3_I ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
-	exec "highlight STLineS3_V ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
-	exec "highlight STLineS3_R ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
+	exec 'highlight STLineS3_N '.s:style(bc05, fc02, '')
+	exec 'highlight STLineS3_I '.s:style(bc05, fc02, '')
+	exec 'highlight STLineS3_V '.s:style(bc05, fc02, '')
+	exec 'highlight STLineS3_R '.s:style(bc05, fc02, '')
 
 	" Statusline S4
-	exec "highlight STLineS4 ".cg."bg=".bc07[cg]." ".cg."fg=".fc01[cg]
+	exec 'highlight STLineS4 '.s:style(bc07, fc01, '')
 
 "=======================================================================================================
 " Tabline
 "=======================================================================================================
-	exec "highlight STLineCur    ".cg."bg=".bc01[cg]." ".cg."fg=".fc01[cg]
-	exec "highlight STLineCurMod ".cg."bg=".bc01[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
-	exec "highlight STLineNml    ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
-	exec "highlight STLineNmlMod ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]." ".cg."=bold"
+	exec 'highlight STLineCur	 '.s:style(bc01, fc01, '')
+	exec 'highlight STLineCurMod '.s:style(bc01, fc01, 'bold')
+	exec 'highlight STLineNml	 '.s:style(bc05, fc02, '')
+	exec 'highlight STLineNmlMod '.s:style(bc05, fc02, 'bold')
 endfunction

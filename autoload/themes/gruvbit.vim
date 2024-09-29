@@ -1,20 +1,24 @@
+function! s:style(bg, fg, opt) abort
+	let style = "ctermbg=".a:bg[0]." ctermfg=".a:fg[0]." guibg=".a:bg[1]." guifg=".a:fg[1]
+	if !empty(a:opt) | let style .= " cterm=".a:opt." gui=".a:opt | endif
+	return style
+endfunction
+
 function! themes#gruvbit#hi() abort
-	let cg = (has('termguicolors') && &termguicolors) || has('gui_running') ? "gui" : "cterm"
-	let bc01 = {"cterm" : "0 " , "gui" : "black"}
-	let bc02 = {"cterm" : "208", "gui" : "#fabd2f"}
-	let bc05 = {"cterm" : "235", "gui" : "#303030"}
-	let bc06 = {"cterm" : "237", "gui" : "#484848"}
-	let bc07 = {"cterm" : "222", "gui" : "moccasin"}
+	let bc01 = ["0"  , "black"   ]
+	let bc02 = ["208", "#fabd2f" ]
+	let bc05 = ["235", "#303030" ]
+	let bc06 = ["237", "#484848" ]
+	let bc07 = ["222", "moccasin"]
 
-	let fc01 = {"cterm" : "109", "gui" : "#83A598"}
-	let fc02 = {"cterm" : "12" , "gui" : "#61AFEF"}
-	let fc03 = {"cterm" : "207", "gui" : "#C678DD"}
-	let fc04 = {"cterm" : "172", "gui" : "#E06C75"}
-	let fc05 = {"cterm" : "247", "gui" : "darkgray"}
-	let fc06 = {"cterm" : "0"  , "gui" : "black"}
-	let fc07 = {"cterm" : "255", "gui" : "white"}
-	let fc08 = {"cterm" : "0"  , "gui" : "black"}
-
+	let fc01 = ["109", "#83A598" ]
+	let fc02 = ["12" , "#61AFEF" ]
+	let fc03 = ["207", "#C678DD" ]
+	let fc04 = ["172", "#E06C75" ]
+	let fc05 = ["247", "darkgray"]
+	let fc06 = ["0"  , "black"   ]
+	let fc07 = ["255", "white"   ]
+	let fc08 = ["0"  , "black"   ]
 
 "=======================================================================================================
 " Statusline
@@ -24,29 +28,29 @@ function! themes#gruvbit#hi() abort
 "	 |   S1   |   S2   |          S3                                   |     S2     |     S1      | S4  |
 "	 +--------+--------+-----------------------------------------------+------------+-------------+-----+
 	" Statusline S1
-	exec "highlight STLineS1_N ".cg."bg=".bc01[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
-	exec "highlight STLineS1_I ".cg."bg=".bc01[cg]." ".cg."fg=".fc02[cg]." ".cg."=bold"
-	exec "highlight STLineS1_V ".cg."bg=".bc01[cg]." ".cg."fg=".fc03[cg]." ".cg."=bold"
-	exec "highlight STLineS1_R ".cg."bg=".bc01[cg]." ".cg."fg=".fc04[cg]." ".cg."=bold"
+	exec 'highlight STLineS1_N '.s:style(bc01, fc01, 'bold')
+	exec 'highlight STLineS1_I '.s:style(bc01, fc02, 'bold')
+	exec 'highlight STLineS1_V '.s:style(bc01, fc03, 'bold')
+	exec 'highlight STLineS1_R '.s:style(bc01, fc04, 'bold')
 
 	" Statusline S2
-	exec "highlight STLineS2 ".cg."bg=".bc06[cg]." ".cg."fg=".fc05[cg]
+	exec 'highlight STLineS2 '.s:style(bc06, fc05, '')
 
 	" Statusline S3
-	exec "highlight STLineS3_N ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]
-	exec "highlight STLineS3_I ".cg."bg=".bc05[cg]." ".cg."fg=".fc02[cg]
-	exec "highlight STLineS3_V ".cg."bg=".bc05[cg]." ".cg."fg=".fc03[cg]
-	exec "highlight STLineS3_R ".cg."bg=".bc05[cg]." ".cg."fg=".fc04[cg]
+	exec 'highlight STLineS3_N '.s:style(bc05, fc01, '')
+	exec 'highlight STLineS3_I '.s:style(bc05, fc02, '')
+	exec 'highlight STLineS3_V '.s:style(bc05, fc03, '')
+	exec 'highlight STLineS3_R '.s:style(bc05, fc04, '')
 
 	" Statusline S4
-	exec "highlight STLineS4 ".cg."bg=".bc07[cg]." ".cg."fg=".fc06[cg]
+	exec 'highlight STLineS4 '.s:style(bc07, fc06, '')
 
 "=======================================================================================================
 " Tabline
 "=======================================================================================================
-	exec "highlight STLineCur    ".cg."bg=".bc02[cg]." ".cg."fg=".fc08[cg]
-	exec "highlight STLineCurMod ".cg."bg=".bc02[cg]." ".cg."fg=".fc08[cg]." ".cg."=bold"
-	exec "highlight STLineNml    ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]
-	exec "highlight STLineNmlMod ".cg."bg=".bc05[cg]." ".cg."fg=".fc01[cg]." ".cg."=bold"
+	exec 'highlight STLineCur	 '.s:style(bc02, fc08, '')
+	exec 'highlight STLineCurMod '.s:style(bc02, fc08, 'bold')
+	exec 'highlight STLineNml	 '.s:style(bc05, fc01, '')
+	exec 'highlight STLineNmlMod '.s:style(bc05, fc01, 'bold')
 endfunction
 
