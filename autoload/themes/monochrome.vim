@@ -7,7 +7,7 @@ endfunction
 function! themes#monochrome#hi() abort
 	let bc01 = ["0"  , "black"	 ]
 	let bc05 = ["235", "#303030" ]
-	let bc06 = ["237", "#484848" ]
+	let bc06 = ["238", "#444444" ]
 	let bc07 = ["222", "moccasin"]
 
 	let fc01 = ["247", "darkgray"]

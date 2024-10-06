@@ -164,8 +164,10 @@ function! stline#tabline() abort
 		let tab = {}
 		let tab.hl  = currentbuf == bufnum ? 'Cur' : 'Nml'
 		let tab.hl .= getbufvar(bufnum, '&mod') ? 'Mod' : ''
-		let tab.label  = lpad.screen_num
+		let tab.label  = screen_num == 1 ? ' ' : '|'
+		let tab.label .= lpad.screen_num.' '
 		let tab.label .= strlen(bufpath) ? ' '.fnamemodify(bufpath, ':t') : ' [No Name]'
+		let tab.label .= ' '
 		let tab.width  = strwidth(tab.label) + 1
 		let tab.label  = substitute(strtrans(tab.label), '%', '%%', 'g').' '
 		let tabs += [tab]
