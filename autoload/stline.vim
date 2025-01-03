@@ -54,7 +54,8 @@ endfunction
 " stlien#get_user_buffers
 "---------------------------------------------------------------
 function! stline#get_user_buffers() abort
-	return filter(range(1, bufnr('$')), 'buflisted(v:val) && "quickfix" !=? getbufvar(v:val, "&buftype")')
+	let nop_buftype = ["quickfix", "terminal"]
+	return filter(range(1, bufnr('$')), 'buflisted(v:val) && index(nop_buftype, getbufvar(v:val, "&buftype")) < 0')
 endfunction
 
 "---------------------------------------------------------------
