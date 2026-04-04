@@ -89,7 +89,7 @@ function! stline#active_statusline() abort
 
 		" fileencoding, fileformat
 		let statusline .= '%#STLineS2#'
-		let statusline .= ' %{&fileencoding}[%{&fileformat}] %*'
+		let statusline .= ' %{&fileencoding} [%{&fileformat}] %*'
 
 		" line. column
 		let statusline .= s:get_highlight_from_mode(mode, 0)
@@ -164,13 +164,12 @@ function! stline#tabline() abort
 		let bufpath = bufname(bufnum)
 		let tab = {}
 		let tab.hl  = currentbuf == bufnum ? 'Cur' : 'Nml'
-		let tab.hl .= getbufvar(bufnum, '&mod') ? 'Mod' : ''
 		let tab.label  = screen_num == 1 ? ' ' : '|'
 		let tab.label .= lpad.screen_num.' '
 		let tab.label .= strlen(bufpath) ? ' '.fnamemodify(bufpath, ':t') : ' [No Name]'
 		let tab.label .= ' '
 		let tab.width  = strwidth(tab.label) + 1
-		let tab.label  = substitute(strtrans(tab.label), '%', '%%', 'g').' '
+		let tab.label  = substitute(strtrans(tab.label), '%', '%%', 'g').(getbufvar(bufnum, '&mod') ? '[+] ' : ' ')
 		let tabs += [tab]
 
 		if currentbuf == bufnum
@@ -220,10 +219,14 @@ endfunction
 "---------------------------------------------------------------
 " stline#tabline
 "---------------------------------------------------------------
-function! stline#tabline_update()
+function! stline#tabline_update(add_del) abort
 	set guioptions-=e
 	set showtabline=2
 	set tabline=%!stline#tabline()
+	if a:add_del == '+'
+		let g:StlineBuffList = bufnr('%')
+		echo "add "+bufnr('%')
+	endif
 endfunction
 
 "---------------------------------------------------------------

@@ -50,8 +50,6 @@ function! themes#angr#hi() abort
 " Tabline
 "=======================================================================================================
 	exec 'highlight STLineCur	 '.s:style(bc01, fc05, '')
-	exec 'highlight STLineCurMod '.s:style(bc02, fc05, '')
 	exec 'highlight STLineNml	 '.s:style(bc05, fc08, '')
-	exec 'highlight STLineNmlMod '.s:style(bc05, fc02, '')
 endfunction
 

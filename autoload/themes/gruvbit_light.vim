@@ -47,8 +47,6 @@ function! themes#gruvbit_light#hi() abort
 " Tabline
 "=======================================================================================================
 	exec 'highlight STLineCur	 '.s:style(bc04, fc03, '')
-	exec 'highlight STLineCurMod '.s:style(bc04, fc03, 'bold')
 	exec 'highlight STLineNml	 '.s:style(bc03, fc02, '')
-	exec 'highlight STLineNmlMod '.s:style(bc03, fc04, '')
 endfunction
 
