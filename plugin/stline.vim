@@ -10,10 +10,10 @@ augroup stline_events
 	autocmd WinLeave             * call stline#statusline(v:false)
 	autocmd BufWritePost         * call stline#update_statusline()
 
-	autocmd VimEnter             * call stline#tabline_update(' ')
-	autocmd TabEnter             * call stline#tabline_update(' ')
-	autocmd BufAdd               * call stline#tabline_update('+')
-	autocmd BufDelete            * call stline#tabline_update('-')
+	autocmd VimEnter             * call stline#tabline_update()
+	autocmd TabEnter             * call stline#tabline_update()
+	autocmd BufAdd               * call stline#tabline_update()
+	autocmd BufDelete            * call stline#tabline_update()
 augroup END
 
 for s:n in range(1, 10)

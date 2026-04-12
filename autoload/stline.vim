@@ -219,14 +219,10 @@ endfunction
 "---------------------------------------------------------------
 " stline#tabline
 "---------------------------------------------------------------
-function! stline#tabline_update(add_del) abort
+function! stline#tabline_update() abort
 	set guioptions-=e
 	set showtabline=2
 	set tabline=%!stline#tabline()
-	if a:add_del == '+'
-		let g:StlineBuffList = bufnr('%')
-		echo "add "+bufnr('%')
-	endif
 endfunction
 
 "---------------------------------------------------------------
