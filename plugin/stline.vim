@@ -3,6 +3,8 @@ if exists('g:loaded_stline')
 endif
 let g:loaded_stline = 1
 
+let g:stline_buffers = []
+
 augroup stline_events
 	autocmd!
 	autocmd VimEnter,ColorScheme * call stline#generate_highlight_groups()
@@ -17,6 +19,7 @@ augroup stline_events
 augroup END
 
 for s:n in range(1, 10)
-	execute printf("noremap <silent> <Plug>STLine.Go(%d) :<C-U>exe 'b'.get(stline#get_user_buffers(),%d,'')<cr>", s:n, s:n-1)
+"	execute printf("noremap <silent> <Plug>STLine.Go(%d) :<C-U>exe 'b'.get(stline#get_user_buffers(),%d,'')<cr>", s:n, s:n-1)
+	execute printf("noremap <silent> <Plug>STLine.Go(%d) :<C-U>exe 'b'.get(g:stline_buffers,%d,'')<cr>", s:n, s:n-1)
 endfor
 unlet! s:n

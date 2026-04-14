@@ -41,13 +41,27 @@ function! s:get_git_branch() abort
 endfunction
 
 "---------------------------------------------------------------
-" get_tail_space
+" check_tail_space
 "---------------------------------------------------------------
 function! s:check_tail_space() abort
 	if !has_key(b:, 'tail_space')
 		call stline#update_statusline()
 	endif
 	return b:tail_space
+endfunction
+
+"---------------------------------------------------------------
+" merge_buffer_list
+"---------------------------------------------------------------
+function! s:merge_buffer_list(list1, list2) abort
+	" list2 の方が list1 より多い場合
+	if len(a:list2) > len(a:list1)
+		let extra = filter(copy(a:list2), 'index(a:list1, v:val) < 0')
+		return a:list1 + extra
+	endif
+
+	" list2 の方が少ない場合
+	return filter(copy(a:list1), 'index(a:list2, v:val) >= 0')
 endfunction
 
 "---------------------------------------------------------------
@@ -151,6 +165,8 @@ let s:centerbuf = winbufnr(0)
 function! stline#tabline() abort
 	let lpad    = ' '
 	let bufnums = stline#get_user_buffers()
+	let g:stline_buffers = s:merge_buffer_list(g:stline_buffers, bufnums)
+
 "	let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
 	let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': &columns / 2 }
 	let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
@@ -159,7 +175,8 @@ function! stline#tabline() abort
 	let tabs = []
 	let currentbuf = winbufnr(0)
 	let screen_num = 0
-	for bufnum in bufnums
+"	for bufnum in bufnums
+	for bufnum in g:stline_buffers
 		let screen_num += 1
 		let bufpath = bufname(bufnum)
 		let tab = {}
