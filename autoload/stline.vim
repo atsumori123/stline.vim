@@ -65,14 +65,6 @@ function! s:merge_buffer_list(list1, list2) abort
 endfunction
 
 "---------------------------------------------------------------
-" stlien#get_user_buffers
-"---------------------------------------------------------------
-function! stline#get_user_buffers() abort
-	let nop_buftype = ["quickfix", "terminal"]
-	return filter(range(1, bufnr('$')), 'buflisted(v:val) && index(nop_buftype, getbufvar(v:val, "&buftype")) < 0')
-endfunction
-
-"---------------------------------------------------------------
 " stline#active_statusline
 "---------------------------------------------------------------
 function! stline#active_statusline() abort
@@ -162,12 +154,8 @@ endfunction
 " stline#tabline
 "---------------------------------------------------------------
 let s:centerbuf = winbufnr(0)
-function! stline#tabline() abort
+function! stline#tabline(buflist) abort
 	let lpad    = ' '
-	let bufnums = stline#get_user_buffers()
-	let g:stline_buffers = s:merge_buffer_list(g:stline_buffers, bufnums)
-
-"	let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
 	let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': &columns / 2 }
 	let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
 	let currentside = lft
@@ -175,8 +163,7 @@ function! stline#tabline() abort
 	let tabs = []
 	let currentbuf = winbufnr(0)
 	let screen_num = 0
-"	for bufnum in bufnums
-	for bufnum in g:stline_buffers
+	for bufnum in a:buflist
 		let screen_num += 1
 		let bufpath = bufname(bufnum)
 		let tab = {}
@@ -234,12 +221,23 @@ function! stline#tabline() abort
 endfunction
 
 "---------------------------------------------------------------
-" stline#tabline
+" stline#tabline_update
 "---------------------------------------------------------------
-function! stline#tabline_update() abort
+function! stline#tabline_update(add_del) abort
+	if a:add_del ==# '+'
+		" 除外対象を除いたバッファリストを作成
+		let nop_buftype = ["quickfix", "terminal"]
+		let buflist = map(getbufinfo({'buflisted': 1}), 'v:val.bufnr')
+		let g:stline_buffers += filter(copy(buflist), 'index(g:stline_buffers, v:val) < 0')
+	else
+		" 削除中のバッファを除いたバッファリストを作成
+		let buflist = map(filter(getbufinfo({'buflisted': 1}), 'v:val.bufnr != +expand("<abuf>")'), 'v:val.bufnr')
+		call filter(g:stline_buffers, 'index(buflist, v:val) >= 0')
+	endif
+
 	set guioptions-=e
 	set showtabline=2
-	set tabline=%!stline#tabline()
+	set tabline=%!stline#tabline(g:stline_buffers)
 endfunction
 
 "---------------------------------------------------------------
