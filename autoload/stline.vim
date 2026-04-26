@@ -51,17 +51,25 @@ function! s:check_tail_space() abort
 endfunction
 
 "---------------------------------------------------------------
-" merge_buffer_list
+" get_buflist
 "---------------------------------------------------------------
-function! s:merge_buffer_list(list1, list2) abort
-	" list2 の方が list1 より多い場合
-	if len(a:list2) > len(a:list1)
-		let extra = filter(copy(a:list2), 'index(a:list1, v:val) < 0')
-		return a:list1 + extra
-	endif
+function! s:get_buflist() abort
+	" 除外対象のバッファリスト
+	let nop_buftype = ["quickfix", "terminal"]
 
-	" list2 の方が少ない場合
-	return filter(copy(a:list1), 'index(a:list2, v:val) >= 0')
+	" 番号のみのバッファリスト
+	let buflist = map(getbufinfo({'buflisted': 1}), 'v:val.bufnr')
+
+	" 削除対象のバッファをリストから削除
+	call filter(buflist, 'index(nop_buftype, getbufvar(v:val, "&buftype")) < 0')
+
+	" 増えたバッファ番号をバッファリストの最後に追加
+	let g:stline_buffers += filter(copy(buflist), 'index(g:stline_buffers, v:val) < 0')
+
+	" 削除されたバッファ番号をバッファリストから削除
+	call filter(g:stline_buffers, 'index(buflist, v:val) >= 0')
+
+	return g:stline_buffers
 endfunction
 
 "---------------------------------------------------------------
@@ -154,16 +162,17 @@ endfunction
 " stline#tabline
 "---------------------------------------------------------------
 let s:centerbuf = winbufnr(0)
-function! stline#tabline(buflist) abort
+function! stline#tabline() abort
 	let lpad    = ' '
 	let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': &columns / 2 }
 	let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
 	let currentside = lft
 
+	let buflist = s:get_buflist()
 	let tabs = []
 	let currentbuf = winbufnr(0)
 	let screen_num = 0
-	for bufnum in a:buflist
+	for bufnum in buflist
 		let screen_num += 1
 		let bufpath = bufname(bufnum)
 		let tab = {}
@@ -223,21 +232,10 @@ endfunction
 "---------------------------------------------------------------
 " stline#tabline_update
 "---------------------------------------------------------------
-function! stline#tabline_update(add_del) abort
-	if a:add_del ==# '+'
-		" 除外対象を除いたバッファリストを作成
-		let nop_buftype = ["quickfix", "terminal"]
-		let buflist = map(getbufinfo({'buflisted': 1}), 'v:val.bufnr')
-		let g:stline_buffers += filter(copy(buflist), 'index(g:stline_buffers, v:val) < 0')
-	else
-		" 削除中のバッファを除いたバッファリストを作成
-		let buflist = map(filter(getbufinfo({'buflisted': 1}), 'v:val.bufnr != +expand("<abuf>")'), 'v:val.bufnr')
-		call filter(g:stline_buffers, 'index(buflist, v:val) >= 0')
-	endif
-
+function! stline#tabline_update() abort
 	set guioptions-=e
 	set showtabline=2
-	set tabline=%!stline#tabline(g:stline_buffers)
+	set tabline=%!stline#tabline()
 endfunction
 
 "---------------------------------------------------------------
